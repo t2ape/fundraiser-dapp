@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import FundraiserFactoryContract from "./contracts/FundraiserFactory.json";
 import getWeb3 from "./utils/getWeb3";
-import "./styles.css";
+import { Routes, Route, NavLink } from "react-router-dom";
+import NewFundraiser from './NewFundraiser';
+import Home from './Home';
 
 const App = () => {
   const [state, setState] = useState({ web3: null, accounts: null, contract: null });
@@ -34,7 +36,21 @@ const App = () => {
 
   return (
     <div>
-      <h1>Fundraiser</h1>
+      <nav>
+        <ul>
+          <li>
+            <NavLink to="/">Home</NavLink>
+          </li>
+          <li>
+            <NavLink to="/new/">New</NavLink>
+          </li>
+        </ul>
+      </nav>
+
+      <Routes>
+        <Route path="/" component={Home} />
+        <Route path="/new/" component={NewFundraiser} />
+      </Routes>
     </div>
   );
 }
