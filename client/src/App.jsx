@@ -4,6 +4,11 @@ import getWeb3 from "./utils/getWeb3";
 import { Routes, Route, NavLink } from "react-router-dom";
 import NewFundraiser from './NewFundraiser';
 import Home from './Home';
+import { styled, AppBar, Toolbar, Typography } from "@mui/material";
+
+const StyledDiv = styled('div')({
+  flexGrow: 1,
+})
 
 const App = () => {
   const [state, setState] = useState({ web3: null, accounts: null, contract: null });
@@ -35,23 +40,21 @@ const App = () => {
   };
 
   return (
-    <div>
-      <nav>
-        <ul>
-          <li>
-            <NavLink to="/">Home</NavLink>
-          </li>
-          <li>
-            <NavLink to="/new/">New</NavLink>
-          </li>
-        </ul>
-      </nav>
+    <StyledDiv>
+      <AppBar position="static" color="default">
+        <Toolbar>
+          <Typography variant="h6" color="inherit">
+            <NavLink className="nav-link" to="/">Home</NavLink>
+          </Typography>
+          <NavLink className="nav-link" to="/new/">New</NavLink>
+        </Toolbar>
+      </AppBar>
 
       <Routes>
         <Route path="/" component={Home} />
         <Route path="/new/" component={NewFundraiser} />
       </Routes>
-    </div>
+    </StyledDiv>
   );
 }
 
