@@ -51,8 +51,8 @@ const App = () => {
       </AppBar>
 
       <Routes>
-        <Route path="/" component={Home} />
-        <Route path="/new/" component={NewFundraiser} />
+        <Route path="/" element={<Home />} />
+        <Route path="/new/" element={<NewFundraiser />} />
       </Routes>
     </StyledDiv>
   );
