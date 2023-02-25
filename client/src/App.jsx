@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
-import FundraiserFactoryContract from "./contracts/FundraiserFactory.json";
 import getWeb3 from "./utils/getWeb3";
+
+import FundraiserFactoryContract from "./contracts/FundraiserFactory.json";
+
 import { Routes, Route, NavLink } from "react-router-dom";
+import { styled, AppBar, Toolbar, Typography } from "@mui/material";
+
 import NewFundraiser from './NewFundraiser';
 import Home from './Home';
-import { styled, AppBar, Toolbar, Typography } from "@mui/material";
 
 const StyledDiv = styled('div')({
   flexGrow: 1,
@@ -18,7 +21,7 @@ const App = () => {
       try {
         const web3 = await getWeb3();
         const accounts = await web3.eth.getAccounts();
-        const netWorkId = await web3.eth.getId();
+        const netWorkId = await web3.eth.net.getId();
         const deployedNetwork = FundraiserFactoryContract.networks[netWorkId];
         const instance = new web3.eth.Contract(
           FundraiserFactoryContract.abi,
@@ -34,10 +37,6 @@ const App = () => {
     }
     init();
   }, {});
-
-  const runExample = async () => {
-    const { accounts, contract } = state;
-  };
 
   return (
     <StyledDiv>

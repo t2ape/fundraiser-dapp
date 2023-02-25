@@ -177,3 +177,14 @@ body {
   width: 300px !important;
   margin-left: 3px;
 }
+
+.main-contaner {
+  margin: 20px;
+}
+
+.fundraiser-card-container {
+  display: inline-flex;
+  width: 250px;
+  height: 250px;
+  margin: 20px;
+}
