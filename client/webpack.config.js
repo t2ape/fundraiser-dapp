@@ -9,9 +9,11 @@ module.exports = {
   entry: "./src/index.jsx",
   output: {
     path: path.resolve(__dirname, "build"),
+    publicPath: '/'
   },
   resolve: { extensions },
   devServer: {
+    historyApiFallback: true,
     client: {
       overlay: false,
     },
