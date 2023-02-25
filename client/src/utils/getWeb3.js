@@ -37,13 +37,12 @@ const getWeb3 = () =>
     window.removeEventListener("load", newWeb3Provider);
     window.addEventListener("load", newWeb3Provider);
 
-    // TODO: 記述方法を検討
-    // if (document.readyState === 'complete') {
-    //   newWeb3Provider;
-    // } else {
-    //   window.removeEventListener("load", newWeb3Provider);
-    //   window.addEventListener("load", newWeb3Provider);
-    // }
+    if (document.readyState === 'complete') {
+      newWeb3Provider();
+    } else {
+      window.removeEventListener("load", newWeb3Provider);
+      window.addEventListener("load", newWeb3Provider);
+    }
   });
 
 export default getWeb3;
