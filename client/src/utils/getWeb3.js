@@ -3,7 +3,7 @@ import Web3 from "web3";
 const getWeb3 = () =>
   new Promise((resolve, reject) => {
     // Wait for loading completion to avoid race conditions with web3 injection timing.
-    window.addEventListener("load", async () => {
+    const newWeb3Provider = async () => {
       // Modern dapp browsers...
       if (window.ethereum) {
         const web3 = new Web3(window.ethereum);
@@ -32,7 +32,18 @@ const getWeb3 = () =>
         console.log("No web3 instance injected, using Local web3.");
         resolve(web3);
       }
-    });
+    }
+
+    window.removeEventListener("load", newWeb3Provider);
+    window.addEventListener("load", newWeb3Provider);
+
+    // TODO: 記述方法を検討
+    // if (document.readyState === 'complete') {
+    //   newWeb3Provider;
+    // } else {
+    //   window.removeEventListener("load", newWeb3Provider);
+    //   window.addEventListener("load", newWeb3Provider);
+    // }
   });
 
 export default getWeb3;
