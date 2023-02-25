@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import {Button, styled, TextField} from "@mui/material";
 import getWeb3 from "./utils/getWeb3";
+
 import FundraiserFactoryContract from "./contracts/FundraiserFactory.json";
+
+import {Button, styled, TextField} from "@mui/material";
 
 const StyledContainer = styled('container')({
   display: 'flex',
@@ -16,37 +18,37 @@ const StyledButton = styled(Button)(({ theme }) => ({
 }));
 
 const NewFundraiser = () => {
-  const { name, setFundraiserName } = useState(null);
-  const { url, setFundraiserWebsite } = useState(null);
-  const { description, setFundraiserDescription } = useState(null);
-  const { imageURL, setImage } = useState(null);
-  const { beneficiary, setAddress } = useState(null);
-  const { custodian, setCustodian } = useState(null);
-  const { contract, setContract } = useState(null);
-  const { accounts, setAccounts } = useState(null);
+  const [ name, setFundraiserName ] = useState(null);
+  const [ url, setFundraiserWebsite ] = useState(null);
+  const [ description, setFundraiserDescription ] = useState(null);
+  const [ imageURL, setImage ] = useState(null);
+  const [ beneficiary, setAddress ] = useState(null);
+  const [ custodian, setCustodian ] = useState(null);
+  const [ contract, setContract ] = useState(null);
+  const [ accounts, setAccounts ] = useState(null);
 
   useEffect(() => {
-  }, []);
-
-  const init = async () => {
-    try {
-      const web3 = await getWeb3();
-      const accounts = await web3.eth.getAccounts();
-      const netWorkId = await web3.eth.getId();
-      const deployedNetwork = FundraiserFactoryContract.networks[netWorkId];
-      const instance = new web3.eth.Contract(
-        FundraiserFactoryContract.abi,
-        deployedNetwork && deployedNetwork.address,
-      );
-      setContract(instance);
-      setAccounts(accounts);
-    } catch(error) {
-      alert(
-        'Failed to load web3, accounts, or contract. Check console for details.',
-      );
-      console.error(error);
+    const init = async () => {
+      try {
+        const web3 = await getWeb3();
+        const accounts = await web3.eth.getAccounts();
+        const netWorkId = await web3.eth.net.getId();
+        const deployedNetwork = FundraiserFactoryContract.networks[netWorkId];
+        const instance = new web3.eth.Contract(
+          FundraiserFactoryContract.abi,
+          deployedNetwork && deployedNetwork.address,
+        );
+        setContract(instance);
+        setAccounts(accounts);
+      } catch(error) {
+        alert(
+          'Failed to load web3, accounts, or contract. Check console for details.',
+        );
+        console.error(error);
+      }
     }
-  }
+    init();
+  }, []);
 
   const handleSubmit = async () => {
     await contract.methods.createFundraiser(
