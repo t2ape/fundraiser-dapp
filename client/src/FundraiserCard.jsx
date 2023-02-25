@@ -68,12 +68,15 @@ const FundraiserCard = (props) => {
   return (
     <div className="fundraiser-card-content">
       <SyledCard>
-        <SyledCardMedia image={imageURL} title="Fundraiser Image" />
+        {imageURL ?
+          (<SyledCardMedia image={imageURL} title="Fundraiser Image" />) :
+          (<></>)
+        }
         <CardContent>
           <Typography gutterBottom variant="h5" component="h2">
             {fundName}
           </Typography>
-          <Typography variant="body2" color="textSecondary" component="p">
+          <Typography variant="body2" color="textSecondary" component="span">
             <p>{description}</p>
           </Typography>
         </CardContent>
