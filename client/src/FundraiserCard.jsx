@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import getWeb3 from "./utils/getWeb3";
-import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@mui/material";
+import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl} from "@mui/material";
 
 import FundraiserContract from "./contracts/Fundraiser.json";
 
@@ -23,6 +23,25 @@ const StyledInput = styled('input')({
   display: 'none',
 })
 
+const StyledContainer = styled('container')({
+  display: 'flex',
+  flexWrap: 'wrap',
+})
+
+const StyledFormControl = styled(FormControl)(({ theme }) => ({
+  margin: theme.spacing(1),
+  display: 'table-cell',
+}));
+
+const StyledPaper = styled('paper')(({ theme }) => ({
+  position: 'absolute',
+  width: 400,
+  backgroundColor: theme.palette.background.paper,
+  border: 'none',
+  boxShadow: 'none',
+  padding: 4,
+}));
+
 const FundraiserCard = (props) => {
   const [ web3, setWeb3 ] = useState(null);
   const [ contract, setContract ] = useState(null);
@@ -35,6 +54,7 @@ const FundraiserCard = (props) => {
   const [ url, setURL ] = useState(null);
   const { fundraiser } = props;
   const [ open, setOpen ] = useState(false);
+  const [ donationAmount, setDonationAmount ] = useState(0);
 
   useEffect(() => {
     if(fundraiser) {
@@ -83,6 +103,17 @@ const FundraiserCard = (props) => {
     setOpen(false);
   }
 
+  const submitFunds = async () => {
+    const donation = web3.utils.toWei(donationAmount);
+
+    await contract.methods.donate().send({
+      from: accounts[0],
+      value: donation,
+      gas: 650000
+    });
+    setOpen(false);
+  }
+
   return (
     <div className="fundraiser-card-content">
       <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
@@ -94,6 +125,17 @@ const FundraiserCard = (props) => {
             <img src={imageURL} width='200px' height='130px' />
             <p>{description}</p>
           </DialogContentText>
+          <StyledFormControl>
+            $
+            <input id="component-simple"
+                   value={donationAmount}
+                   onChange={(e) => setDonationAmount(e.target.value)}
+                   placeholder="0.00" />
+          </StyledFormControl>
+          <p></p>
+          <Button onClick={submitFunds} variant="contained" color="primary">
+            Donate
+          </Button>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
@@ -113,6 +155,7 @@ const FundraiserCard = (props) => {
             </Typography>
             <Typography variant="body2" color="textSecondary" component="span">
               <p>{description}</p>
+              <p>Total Donations: ${totalDonations}</p>
             </Typography>
           </CardContent>
         </CardActionArea>
