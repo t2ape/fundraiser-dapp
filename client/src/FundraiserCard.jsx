@@ -1,17 +1,26 @@
 import React, { useEffect, useState } from "react";
 import getWeb3 from "./utils/getWeb3";
+import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@mui/material";
 
 import FundraiserContract from "./contracts/Fundraiser.json";
 
 import {styled, Card, CardActionArea, CardActions, CardContent, CardMedia, Typography} from "@mui/material";
 
-const SyledCard = styled(Card)({
+const StyledCard = styled(Card)({
   maxWidth: 450,
   height: 400,
 })
 
-const SyledCardMedia = styled(CardMedia)({
+const StyledCardMedia = styled(CardMedia)({
   height: 140,
+})
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  margin: theme.spacing(1),
+}));
+
+const StyledInput = styled('input')({
+  display: 'none',
 })
 
 const FundraiserCard = (props) => {
@@ -25,6 +34,7 @@ const FundraiserCard = (props) => {
   const [ imageURL, setImageURL ] = useState(null);
   const [ url, setURL ] = useState(null);
   const { fundraiser } = props;
+  const [ open, setOpen ] = useState(false);
 
   useEffect(() => {
     if(fundraiser) {
@@ -65,22 +75,53 @@ const FundraiserCard = (props) => {
     }
   }, [fundraiser]);
 
+  const handleOpen = () => {
+    setOpen(true);
+  }
+
+  const handleClose = () => {
+    setOpen(false);
+  }
+
   return (
     <div className="fundraiser-card-content">
-      <SyledCard>
-        {imageURL ?
-          (<SyledCardMedia image={imageURL} title="Fundraiser Image" />) :
-          (<></>)
-        }
-        <CardContent>
-          <Typography gutterBottom variant="h5" component="h2">
-            {fundName}
-          </Typography>
-          <Typography variant="body2" color="textSecondary" component="span">
+      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">
+          Donate to {fundName}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText component="span">
+            <img src={imageURL} width='200px' height='130px' />
             <p>{description}</p>
-          </Typography>
-        </CardContent>
-      </SyledCard>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <StyledCard onClick={handleOpen}>
+        <CardActionArea>
+          {imageURL ?
+            (<StyledCardMedia image={imageURL} title="Fundraiser Image" />) :
+            (<></>)
+          }
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="h2">
+              {fundName}
+            </Typography>
+            <Typography variant="body2" color="textSecondary" component="span">
+              <p>{description}</p>
+            </Typography>
+          </CardContent>
+        </CardActionArea>
+        <CardActions>
+          <StyledButton onClick={handleOpen} variant="contained">
+            View More
+          </StyledButton>
+        </CardActions>
+      </StyledCard>
     </div>
   )
 }
