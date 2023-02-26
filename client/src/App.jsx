@@ -8,6 +8,7 @@ import { styled, AppBar, Toolbar, Typography } from "@mui/material";
 
 import NewFundraiser from './NewFundraiser';
 import Home from './Home';
+import Receipts from "./Receipts";
 
 const StyledDiv = styled('div')({
   flexGrow: 1,
@@ -52,6 +53,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/new/" element={<NewFundraiser />} />
+        <Route path="/receipts/" element={<Receipts />} />
       </Routes>
     </StyledDiv>
   );

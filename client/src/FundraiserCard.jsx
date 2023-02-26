@@ -1,10 +1,21 @@
 import React, { useEffect, useState } from "react";
 import getWeb3 from "./utils/getWeb3";
-import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl} from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  FormControl,
+} from "@mui/material";
+import {Link} from "react-router-dom";
 
 import FundraiserContract from "./contracts/Fundraiser.json";
 
 import {styled, Card, CardActionArea, CardActions, CardContent, CardMedia, Typography} from "@mui/material";
+
+const cc = require('cryptocompare');
 
 const StyledCard = styled(Card)({
   maxWidth: 450,
@@ -55,6 +66,9 @@ const FundraiserCard = (props) => {
   const { fundraiser } = props;
   const [ open, setOpen ] = useState(false);
   const [ donationAmount, setDonationAmount ] = useState(0);
+  const [ exchangeRate, setExchangeRate ] = useState(null);
+  const ethAmount = (donationAmount / exchangeRate || 0).toFixed(4);
+  const [ userDonations, setUserDonations ] = useState(null);
 
   useEffect(() => {
     if(fundraiser) {
@@ -79,11 +93,20 @@ const FundraiserCard = (props) => {
           const imageURL = await instance.methods.imageURL().call();
           const url = await instance.methods.url().call();
 
+          const exchangeRate = await cc.price('ETH', ['USD']);
+          setExchangeRate(exchangeRate.USD);
+          const eth = web3.utils.fromWei(totalDonations, 'ether');
+          const dollarDonationAmount = exchangeRate.USD * eth;
+
           setFundName(name);
           setDescription(description);
           setImageURL(imageURL);
-          setTotalDonations(totalDonations);
+          setTotalDonations(dollarDonationAmount);
           setURL(url);
+
+          const userDonations = await instance.methods.myDonations().call({ from: accounts[0] });
+          console.log(userDonations);
+          setUserDonations(userDonations);
         } catch(error) {
           alert(
             'Failed to load web3, accounts, or contract. Check console for details.',
@@ -104,7 +127,8 @@ const FundraiserCard = (props) => {
   }
 
   const submitFunds = async () => {
-    const donation = web3.utils.toWei(donationAmount);
+    const ethTotal = donationAmount / exchangeRate;
+    const donation = web3.utils.toWei(ethTotal.toString());
 
     await contract.methods.donate().send({
       from: accounts[0],
@@ -112,6 +136,41 @@ const FundraiserCard = (props) => {
       gas: 650000
     });
     setOpen(false);
+  }
+
+  const renderDonationsList = () => {
+    var donations = userDonations;
+    if(donations === null) { return null; }
+
+    const totalDonations = donations.values.length;
+    let donationList = [];
+    var i;
+    for (i = 0; i < totalDonations; i++) {
+      const ethAmount = web3.utils.fromWei(donations.values[i]);
+      const userDonation = exchangeRate * ethAmount;
+      const donationDate = donations.dates[i];
+      donationList.push({
+        donationAmount: userDonation.toFixed(2),
+        date: donationDate,
+      })
+    }
+    return donationList.map((donation) => {
+      return (
+        <div className="donation-list" key={donation}>
+          <p>${donation.donationAmount}</p>
+          <Button variant="contained" color="primary">
+            <Link className="donation-receipt-link"
+                  to='/receipts/'
+                  state={{ fund: fundName,
+                           donation: donation.donationAmount,
+                           date: donation.date }}
+            >
+              Request Receipt
+            </Link>
+          </Button>
+        </div>
+      );
+    });
   }
 
   return (
@@ -132,10 +191,14 @@ const FundraiserCard = (props) => {
                    onChange={(e) => setDonationAmount(e.target.value)}
                    placeholder="0.00" />
           </StyledFormControl>
-          <p></p>
+          <p>Eth: {ethAmount}</p>
           <Button onClick={submitFunds} variant="contained" color="primary">
             Donate
           </Button>
+          <div>
+            <h3>My donations</h3>
+            {renderDonationsList()}
+          </div>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
