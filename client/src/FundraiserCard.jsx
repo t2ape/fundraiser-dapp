@@ -7,7 +7,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  FormControl,
+  FormControl, Input,
 } from "@mui/material";
 import {Link} from "react-router-dom";
 
@@ -69,6 +69,8 @@ const FundraiserCard = (props) => {
   const [ exchangeRate, setExchangeRate ] = useState(null);
   const ethAmount = (donationAmount / exchangeRate || 0).toFixed(4);
   const [ userDonations, setUserDonations ] = useState(null);
+  const [ isOwner, setIsOwner ] = useState(false);
+  const [ beneficiary, setNewBeneficiary ] = useState('');
 
   useEffect(() => {
     if(fundraiser) {
@@ -107,6 +109,12 @@ const FundraiserCard = (props) => {
           const userDonations = await instance.methods.myDonations().call({ from: accounts[0] });
           console.log(userDonations);
           setUserDonations(userDonations);
+
+          const isUser = accounts[0];
+          const isOwner = await instance.methods.owner().call();
+          if (isOwner === isUser) {
+            setIsOwner(true);
+          }
         } catch(error) {
           alert(
             'Failed to load web3, accounts, or contract. Check console for details.',
@@ -115,6 +123,10 @@ const FundraiserCard = (props) => {
         }
       }
       init(fundraiser);
+
+      window.ethereum.on('accountsChanged', function (accounts) {
+        window.location.reload();
+      });
     }
   }, [fundraiser]);
 
@@ -173,6 +185,22 @@ const FundraiserCard = (props) => {
     });
   }
 
+  const withdrawalFunds = async () => {
+    await contract.methods.withdraw().send({
+      from: accounts[0],
+    })
+    alert('Funds Withdrawn');
+    setOpen(false);
+  }
+
+  const setBeneficiary = async () => {
+    await contract.methods.setBeneficiary(beneficiary).send({
+      from: accounts[0],
+    });
+    alert('Fundraiser Beneficiary Changed');
+    setOpen(false);
+  }
+
   return (
     <div className="fundraiser-card-content">
       <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
@@ -199,11 +227,34 @@ const FundraiserCard = (props) => {
             <h3>My donations</h3>
             {renderDonationsList()}
           </div>
+
+          { isOwner &&
+            <div>
+              <StyledFormControl>
+                Beneficiary:
+                <Input value={beneficiary}
+                       onChange={(e) => setNewBeneficiary((e.target.value))}
+                       placeholder="Set Beneficiary" />
+              </StyledFormControl>
+
+              <Button variant="contained"
+                      style={{ marginTop: 30 }}
+                      color="primary"
+                      onClick={setBeneficiary}>
+                Set Beneficiary
+              </Button>
+            </div>
+          }
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
             Cancel
           </Button>
+          { isOwner &&
+            <Button variant="contained" color="primary" onClick={withdrawalFunds}>
+              Withdrawal
+            </Button>
+          }
         </DialogActions>
       </Dialog>
       <StyledCard onClick={handleOpen}>
